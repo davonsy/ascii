@@ -3,70 +3,152 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ASCII Atmospheric Renderer</title>
+    <title>DAVONSY ASCII</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <canvas id="matrixRain" class="matrix-rain" aria-hidden="true"></canvas>
+    <div id="loadingOverlay" class="loading-overlay" aria-hidden="false">
+      <div class="loading-terminal" id="loadingTerminal" aria-label="Loading 0%">
+        <div class="loading-terminal__header">
+          <span>LOADING</span>
+          <span id="loadingPercent">000%</span>
+        </div>
+        <div class="loading-terminal__gauge" id="loadingGauge">
+          <span></span>
+        </div>
+      </div>
+    </div>
+    <div id="cursorParticles" class="cursor-particles" aria-hidden="true"></div>
     <main class="app">
-      <section class="stage" aria-label="ASCII atmospheric renderer">
+      <section class="stage" aria-label="DAVONSY ASCII renderer">
         <div class="topbar">
           <div>
-            <p class="eyebrow">volumetric ASCII signal</p>
-            <h1>Atmospheric Renderer</h1>
+            <button id="portfolioLink" class="eyebrow eyebrow-button" type="button" aria-label="Open DAVONSY portfolio">davonsy</button>
+            <div class="brand-row">
+              <button id="brandButton" class="brand-button" type="button" aria-label="Replay loading screen" onclick="window.replayDavonsyLoading && window.replayDavonsyLoading()">
+                DAVONSY ASCII
+              </button>
+            </div>
           </div>
           <div class="actions">
-            <button id="exportSvg" type="button" disabled>SVG</button>
-            <button id="exportPng" type="button" disabled>PNG</button>
+            <button id="exportSvg" type="button" disabled>Export SVG</button>
+            <button id="exportPng" type="button" disabled>Export PNG</button>
             <button id="exportPngHi" type="button" disabled>4K PNG</button>
           </div>
         </div>
 
         <div id="dropzone" class="dropzone" tabindex="0">
-          <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp" />
+          <input id="fileInput" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/jpg,image/webp" />
           <div id="emptyState" class="empty-state">
             <span class="mark">·</span>
             <p>drop an image</p>
             <small>png · jpg · webp</small>
           </div>
-          <div id="renderMount" class="render-mount" aria-live="polite"></div>
+          <div id="previewPanel" class="preview-panel" hidden>
+            <img id="originalPreview" alt="Uploaded original preview" />
+            <div>
+              <p>source image</p>
+              <small id="imageMeta"></small>
+            </div>
+            <button id="changeSource" class="text-button" type="button">Change Source Image</button>
+          </div>
+          <div id="statusLine" class="status-line" aria-live="polite"></div>
+          <div id="errorLine" class="error-line" role="alert"></div>
+          <div id="renderMount" class="render-mount" aria-live="polite">
+            <div id="artworkViewport" class="artwork-viewport">
+              <div id="artworkCamera" class="artwork-camera"></div>
+            </div>
+            <button id="resetView" class="reset-view" type="button" hidden>Reset View</button>
+          </div>
         </div>
       </section>
 
       <aside class="controls" aria-label="Render controls">
         <div class="control-group">
-          <label for="density">particle density <span id="densityValue"></span></label>
-          <input id="density" type="range" min="0.12" max="1.35" step="0.01" value="0.36" />
+          <label for="columns">columns <span id="columnsValue"></span></label>
+          <input id="columns" type="range" min="80" max="240" step="1" value="180" />
         </div>
         <div class="control-group">
-          <label for="asciiSize">ASCII size <span id="asciiSizeValue"></span></label>
-          <input id="asciiSize" type="range" min="4" max="16" step="0.5" value="7" />
+          <label for="fontSize">font size <span id="fontSizeValue"></span></label>
+          <input id="fontSize" type="range" min="5" max="14" step="0.25" value="7.5" />
         </div>
         <div class="control-group">
-          <label for="diffusion">particle diffusion <span id="diffusionValue"></span></label>
-          <input id="diffusion" type="range" min="0" max="1" step="0.01" value="0.46" />
+          <label for="lineHeight">line height <span id="lineHeightValue"></span></label>
+          <input id="lineHeight" type="range" min="0.7" max="1.35" step="0.01" value="0.86" />
         </div>
         <div class="control-group">
-          <label for="dissolve">silhouette dissolve <span id="dissolveValue"></span></label>
-          <input id="dissolve" type="range" min="0" max="1" step="0.01" value="0.42" />
+          <label for="letterSpacing">letter spacing <span id="letterSpacingValue"></span></label>
+          <input id="letterSpacing" type="range" min="-1" max="1.5" step="0.05" value="-0.15" />
+        </div>
+        <div class="control-group">
+          <label for="contrast">contrast <span id="contrastValue"></span></label>
+          <input id="contrast" type="range" min="0.5" max="3" step="0.01" value="1.85" />
+        </div>
+        <div class="control-group">
+          <label for="brightness">brightness <span id="brightnessValue"></span></label>
+          <input id="brightness" type="range" min="-0.5" max="0.5" step="0.01" value="-0.08" />
         </div>
         <div class="control-group">
           <label for="threshold">brightness threshold <span id="thresholdValue"></span></label>
-          <input id="threshold" type="range" min="0.18" max="0.88" step="0.01" value="0.58" />
+          <input id="threshold" type="range" min="0" max="0.8" step="0.01" value="0.18" />
         </div>
         <div class="control-group">
-          <label for="spread">volumetric spread <span id="spreadValue"></span></label>
-          <input id="spread" type="range" min="0" max="1" step="0.01" value="0.54" />
+          <label for="alphabetAmount">alphabet usage <span id="alphabetAmountValue"></span></label>
+          <input id="alphabetAmount" type="range" min="0" max="1" step="0.01" value="0.76" />
         </div>
         <div class="control-group">
-          <label for="bloom">bloom intensity <span id="bloomValue"></span></label>
-          <input id="bloom" type="range" min="0" max="1" step="0.01" value="0.32" />
+          <label for="symbolDensity">symbol density <span id="symbolDensityValue"></span></label>
+          <input id="symbolDensity" type="range" min="0" max="1" step="0.01" value="0.34" />
+        </div>
+        <div class="control-group">
+          <label for="decorativeFrequency">decorative frequency <span id="decorativeFrequencyValue"></span></label>
+          <input id="decorativeFrequency" type="range" min="0" max="0.08" step="0.001" value="0.012" />
+        </div>
+        <div class="control-group">
+          <label for="glowIntensity">glow intensity <span id="glowIntensityValue"></span></label>
+          <input id="glowIntensity" type="range" min="0" max="1" step="0.01" value="0.22" />
         </div>
         <div class="control-group">
           <label for="scanlines">scanline strength <span id="scanlinesValue"></span></label>
-          <input id="scanlines" type="range" min="0" max="0.55" step="0.01" value="0.14" />
+          <input id="scanlines" type="range" min="0" max="0.4" step="0.01" value="0.08" />
         </div>
         <div class="control-group">
-          <label for="palette">color palette</label>
+          <label for="invert">invert</label>
+          <select id="invert">
+            <option value="off">off</option>
+            <option value="on">on</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="backgroundColor">background color</label>
+          <select id="backgroundColor">
+            <option value="black">black</option>
+            <option value="transparent">transparent</option>
+            <option value="paper">paper white</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="foregroundMode">foreground color mode</label>
+          <select id="foregroundMode">
+            <option value="offwhite">off-white</option>
+            <option value="palette">subtle CRT palette</option>
+            <option value="mint">pale mint</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="randomizeTextColor">randomize text color</label>
+          <select id="randomizeTextColor">
+            <option value="off">off</option>
+            <option value="on">on</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="colorRandomness">color randomness <span id="colorRandomnessValue"></span></label>
+          <input id="colorRandomness" type="range" min="0" max="100" step="1" value="28" />
+        </div>
+        <div class="control-group">
+          <label for="palette">palette tint</label>
           <select id="palette">
             <option value="veil">mint veil</option>
             <option value="ember">warm apparition</option>
