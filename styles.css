@@ -23,7 +23,7 @@ body {
 }
 
 body {
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 body.intro-scroll-locked {
@@ -171,10 +171,11 @@ select {
 .app {
   position: relative;
   z-index: 2;
-  min-height: 100vh;
+  height: 100vh;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;
   gap: 0;
+  overflow: hidden;
   background:
     radial-gradient(circle at 72% 16%, rgba(188, 246, 220, 0.075), transparent 22rem),
     radial-gradient(circle at 20% 88%, rgba(255, 205, 216, 0.05), transparent 26rem),
@@ -190,6 +191,9 @@ body.intro-scroll-locked .app {
 }
 
 .stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
   min-width: 0;
   padding: 28px;
   display: flex;
@@ -515,7 +519,10 @@ button:disabled {
 }
 
 .controls {
-  min-height: 100vh;
+  height: 100vh;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 29px 22px;
   border-left: 1px solid rgba(218, 255, 236, 0.09);
   background: rgba(4, 6, 6, 0.56);
@@ -523,6 +530,34 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.controls::-webkit-scrollbar {
+  width: 8px;
+}
+
+.controls::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.controls::-webkit-scrollbar-thumb {
+  background: rgba(191, 247, 218, 0.18);
+  border-radius: 999px;
+}
+
+.control-actions {
+  position: sticky;
+  top: -29px;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin: -29px -22px 0;
+  padding: 29px 22px 18px;
+  background:
+    linear-gradient(to bottom, rgba(4, 6, 6, 0.94), rgba(4, 6, 6, 0.62));
+  border-bottom: 1px solid rgba(218, 255, 236, 0.08);
+  backdrop-filter: blur(8px);
 }
 
 .control-group {
@@ -560,11 +595,22 @@ select {
 }
 
 @media (max-width: 900px) {
+  body {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
   .app {
     grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
   }
 
   .stage {
+    position: relative;
+    top: auto;
+    height: 100vh;
     padding: 18px;
   }
 
@@ -587,11 +633,20 @@ select {
   }
 
   .controls {
+    height: auto;
     min-height: auto;
+    overflow: visible;
     border-left: 0;
     border-top: 1px solid rgba(218, 255, 236, 0.09);
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .control-actions {
+    position: static;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: -29px -22px 0;
   }
 }
 

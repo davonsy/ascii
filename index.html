@@ -31,11 +31,6 @@
               </button>
             </div>
           </div>
-          <div class="actions">
-            <button id="exportSvg" type="button" disabled>Export SVG</button>
-            <button id="exportPng" type="button" disabled>Export PNG</button>
-            <button id="exportPngHi" type="button" disabled>4K PNG</button>
-          </div>
         </div>
 
         <div id="dropzone" class="dropzone" tabindex="0">
@@ -65,6 +60,11 @@
       </section>
 
       <aside class="controls" aria-label="Render controls">
+        <div class="control-actions">
+          <button id="exportSvg" type="button" disabled>Export SVG</button>
+          <button id="exportPng" type="button" disabled>Export PNG</button>
+          <button id="exportPngHi" type="button" disabled>4K PNG</button>
+        </div>
         <div class="control-group">
           <label for="columns">columns <span id="columnsValue"></span></label>
           <input id="columns" type="range" min="80" max="240" step="1" value="180" />
